@@ -48,8 +48,8 @@ impl ErrorView {
         self.error_context = console::style(context);
     }
 
-    pub fn add_style_context(&mut self, context: String) {
-        self.error_context = console::style(context);
+    pub fn add_style_context(&mut self, context: StyledObject<String>) {
+        self.error_context = context;
     }
 
     pub fn error(&self) -> &StyledObject<String> {
@@ -71,18 +71,10 @@ impl fmt::Display for ErrorView {
     }
 }
 
-pub fn out_limit(ds: &DataSet) -> ErrorView {
-    let y = console::style(format!("{}", ds.posy())).bold().red();
-    let x = console::style(format!("{}", ds.posx())).bold().red();
-    let stl_obj = console::style(format!("Position out of the limit: Y:{} X:{}", y, x)).bold();
+pub fn warn_out_limit(ds: &DataSet) -> ErrorView {
+    let stl_obj = console::style(format!("you can't go behind: Y:{} X:{}", ds.posy() + 1, ds.posx() + 1)).bold();
     ErrorView::new_style_err(stl_obj)
 }
-
-// fn verify<C>(cmp_1: &C, cmp_2: &C) -> bool
-// where C: PartialEq + PartialOrd,
-// {
-
-// }
 
 impl error::Error for ErrorView {}
 

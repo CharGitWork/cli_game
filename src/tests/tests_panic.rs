@@ -2,71 +2,75 @@
 
 #[cfg(test)]
 mod tests_panicking {
-    use crate::functionalities::structs::DEPLACEMENT;
-    use crate::functionalities::structs::DataSet;
+    use crate::functionalities::structs::{self, DEPLACEMENT, DataSet, LIMIT};
     
     #[test]
     #[should_panic]
-    fn new_move_aways_from_zero() {
+    fn deplc_aways_from_min_limit() {
+        // plyr.posy == 0
         let mut plyr = DataSet::new();
-        *plyr.posy_mut() = 0;
         *plyr.deplc.to_mut_y() = -1;
-        let max_y = 3;
-        let max_x = 6;
-        if let Ok(_) = plyr.new_move(&(max_y, max_x)) {
+        let limit = LIMIT;
+        // deplc return a Err(ErrorView)
+        if let Ok(_) = structs::deplc(&mut plyr, &limit) {
             panic!("y out of index");
         }
+        // init back to 0 or we'll have some bug
         *plyr.deplc.to_mut_y() = 0;
 
-        *plyr.posx_mut() = 0;
+        // here it's the same, plyr.posx == 0
         *plyr.deplc.to_mut_x() = -1;
-        if let Err(err) = plyr.new_move(&(max_y, max_x)) {
+        // 0 - 1 in Y like X run to a Err(ErrorView)
+        if let Err(err) = structs::deplc(&mut plyr, &limit) {
             panic!("{}", err);
         }
     }
+
     #[test]
     #[should_panic]
-    fn new_move_aways_from_max_limit() {
+    fn deplc_aways_from_max_limit() {
         let mut plyr = DataSet::new();
-        let max_y = 3;
-        let max_x = 6;
-
-        *plyr.posy_mut() = max_y;
+        let limit = LIMIT;
+        // plyr.posy == 4
+        *plyr.posy_mut() = limit[1][1] - 1;
         *plyr.deplc.to_mut_y() = 1;
-
-        if let Ok(_) = plyr.new_move(&(max_y, max_x)) {
+        // deplc return a Err(ErrorView)
+        if let Ok(_) = structs::deplc(&mut plyr, &limit) {
             panic!("y out of index");
         }
+        // init back to 0 or we'll have some bug
         *plyr.deplc.to_mut_y() = 0;
 
-        *plyr.posx_mut() = max_x;
+        // plyr.posx == 4
+        *plyr.posx_mut() = limit[0][1] - 1;
+
         *plyr.deplc.to_mut_x() = 1;
-        if let Err(err) = plyr.new_move(&(max_y, max_x)) {
+        // 4 + 1 in Y like X run to a Err(ErrorView)
+        if let Err(err) = structs::deplc(&mut plyr, &limit) {
             panic!("{}", err);
         }
     }
 
     #[test]
     #[should_panic]
-    fn call_new_move_where_to_x_and_to_y_eq_zero() {
+    fn deplc_where_to_x_and_to_y_eq_zero() {
         let mut plyr = DataSet::new();
-        let max_y = 3;
-        let max_x = 6;
+        let limit = LIMIT;
 
         // to_x and to_y == 0
 
-        if let Err(_) = plyr.new_move(&(max_y, max_x)) {
+        if let Err(_) = structs::deplc(&mut plyr, &limit) {
             panic!("y and x == 0");
         }
     }
     #[test]
     #[should_panic]
-    fn deplace_index_to_high() {
+    fn calling_deplace_method_with_a_invalid_index() {
         let mut p = DataSet::new();
         let dep = DEPLACEMENT;
         let index = 4;
 
+        // panic for a wrond user entry
         p.deplace(&dep, index);
-        assert_eq!(p.deplc.to_x(), -1);
     }
 }

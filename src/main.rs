@@ -1,12 +1,14 @@
+#![allow(non_upper_case_globals)]
+
 use cli::functionalities::structs::DEPLACEMENT;
 use cli::prelude::*;
 
 use console::*;
 
-use cli::functionalities::structs::LIMIT;
+use cli::functionalities::structs::{self, LIMIT};
 
 fn main() {
-    const XY_LIMIT: [[usize;2];2] = LIMIT;
+    const xyLimit: [[usize;2];2] = LIMIT;
     let prog_entry = CliEntry::new();
     let mut gameboard = Board::init();
     let mut player = DataSet::new();
@@ -44,9 +46,8 @@ fn main() {
 
         (*gameboard.board_mut())[player.posy()][player.posx()] = false;
         
-        if let Err(error) = player.new_move(&(height, width)) {
+        if let Err(error) = structs::deplc(&mut player, &xyLimit) {
             eprintln!("{}", error);
-            break 'game_loop;
         }
 
         (*gameboard.board_mut())[player.posy()][player.posx()] = true;
