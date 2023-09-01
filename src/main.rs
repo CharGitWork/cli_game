@@ -9,24 +9,24 @@ use cli::functionalities::structs::{self, LIMIT};
 
 fn main() {
     const xyLimit: [[usize;2];2] = LIMIT;
-    let prog_entry = CliEntry::new();
+    let mut console = CliEntry::new();
     let mut gameboard = Board::init();
     let mut player = DataSet::new();
 
     let height = gameboard.len_height();
     let width = gameboard.len_width();
-    let mut f = std::io::stdout().lock();
+    // let mut f = std::io::stdout().lock();
 
     *player.posx_mut() = width / 2;
     *player.posy_mut() = height / 2;
 
     (*gameboard.board_mut())[player.posy()][player.posx()] = true;
 
-    cli::view(&gameboard, &mut f);
+    cli::view(&gameboard, console.terminal());
 
     'game_loop:loop {
         'user_entry:loop {
-            let index: usize = match prog_entry.terminal.read_key() {
+            let index: usize = match console.terminal.read_key() {
                 Ok(key) => match key {
                     Key::ArrowUp => 0,
                     Key::ArrowRight => 1,
@@ -48,9 +48,20 @@ fn main() {
         
         if let Err(error) = structs::deplc(&mut player, &xyLimit) {
             eprintln!("{}", error);
+            match console.terminal.read_key() {
+                Ok(key) => match key {
+                    Key::Char('q') => break 'game_loop,
+                    _ => console.terminal().clear_screen().expect("bug to clean stdout"),
+                }
+                Err(error) => panic!("error caused by: {}", error),
+            }
         }
+        // temp
+        console.terminal.clear_screen().expect("bug to clean stdout");
+        console.terminal.write_line("push 'q' to leave").expect("bug writing on stdout in main function");
 
         (*gameboard.board_mut())[player.posy()][player.posx()] = true;
-        cli::view(&gameboard, &mut f);
+        
+        cli::view(&gameboard, console.terminal());
     }
 }

@@ -2,27 +2,30 @@ pub mod functionalities;
 pub mod prelude;
 pub mod tests;
 
+use console::Term;
+
 use crate::functionalities::structs::Board;
 
-pub fn view(dis: &Board, mut f: impl std::io::Write) {
-    dis.state
-        .iter().for_each(|v| {
-            v.iter().enumerate().for_each(|(i, b)| {
+pub fn view(dis: &Board, f: &mut Term) {
+    let mut lines = String::with_capacity(80);
+
+    dis.state.iter().flatten().enumerate().for_each(|(i, b)| {
                 match b {
-                    false if i % 5 != 0 => {
-                        write!(f, "[0]").unwrap();
+                    false if !(i % 5 == 0) => {
+                        lines.push_str("[0]");
                     },
                     false => {
-                        write!(f, "\n[0]").unwrap();
+                        lines.push_str("\n[0]");
                     },
-                    true if i % 5 != 0 => {
-                        write!(f, "(X)").unwrap();
+                    true if !(i % 5 == 0)=> {
+                        lines.push_str("(X)");
                     },
                     true => {
-                        write!(f, "\n(X)").unwrap()
+                        lines.push_str("\n(X)");
                     },
                 };
-            })
-        });
-    writeln!(f, "\n").unwrap();
+            }
+        );
+    f.write_line(&lines).expect("bug in cli::view()");
+    f.flush().expect("bug in cli::view()");
 }

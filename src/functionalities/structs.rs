@@ -33,6 +33,10 @@ impl CliEntry {
     pub fn y(&self) -> i8 {
         self.y
     }
+    
+    pub fn terminal(&mut self) -> &mut Term {
+        &mut self.terminal
+    }
 }
 
 #[derive(Debug)]
